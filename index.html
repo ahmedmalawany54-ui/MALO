@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آلة حاسبة علمية فائقة - Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at top left, #1a103c, #090a0f 70%);
+            font-family: 'Cairo', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* كرات إضاءة نيون في الخلفية لعمل تأثير الزجاج */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            animation: float 8s infinite alternate ease-in-out;
+        }
+        .orb-1 {
+            width: 300px;
+            height: 300px;
+            background: #7c3aed;
+            top: 10%;
+            left: 20%;
+        }
+        .orb-2 {
+            width: 350px;
+            height: 350px;
+            background: #06b6d4;
+            bottom: 10%;
+            right: 20%;
+            animation-delay: -4s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, -40px) scale(1.1); }
+        }
+
+        /* الحاوية الرئيسية */
+        .container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            max-width: 900px;
+            width: 100%;
+            justify-content: center;
+            align-items: stretch;
+        }
+
+        /* جسم الآلة الزجاجي */
+        .calculator {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 28px;
+            padding: 25px;
+            width: 420px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7),
+                        inset 0 0 20px rgba(255, 255, 255, 0.05);
+            direction: ltr;
+        }
+
+        /* الشريط العلوي */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #94a3b8;
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+
+        .mode-toggle {
+            background: rgba(6, 182, 212, 0.2);
+            color: #22d3ee;
+            border: 1px solid rgba(34, 211, 238, 0.4);
+            padding: 4px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            transition: 0.3s;
+        }
+        .mode-toggle:hover {
+            background: #06b6d4;
+            color: #000;
+            box-shadow: 0 0 15px #06b6d4;
+        }
+
+        /* شاشة العرض المزدوجة */
+        .screen {
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            text-align: right;
+            min-height: 105px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: inset 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        #expression {
+            color: #94a3b8;
+            font-size: 15px;
+            min-height: 22px;
+            overflow-x: auto;
+            white-space: nowrap;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        #display {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-size: 34px;
+            font-weight: 700;
+            text-align: right;
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 15px rgba(34, 211, 238, 0.5);
+            outline: none;
+        }
+
+        /* شبكة الأزرار */
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        button.btn {
+            height: 52px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #f1f5f9;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        button.btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        button.btn:active {
+            transform: scale(0.93);
+        }
+
+        /* أزرار الدوال العلمية */
+        .btn.sci {
+            background: rgba(124, 58, 237, 0.18);
+            color: #c4b5fd;
+            font-size: 14px;
+            border-color: rgba(139, 92, 246, 0.25);
+        }
+        .btn.sci:hover {
+            background: rgba(124, 58, 237, 0.4);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(124, 58, 237, 0.5);
+        }
+
+        /* أزرار العمليات الحسابية */
+        .btn.op {
+            background: rgba(6, 182, 212, 0.18);
+            color: #22d3ee;
+            font-size: 19px;
+            border-color: rgba(6, 182, 212, 0.3);
+        }
+        .btn.op:hover {
+            background: rgba(6, 182, 212, 0.4);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
+        }
+
+        /* زر المسح */
+        .btn.danger {
+            background: rgba(244, 63, 94, 0.2);
+            color: #fda4af;
+            border-color: rgba(244, 63, 94, 0.3);
+        }
+        .btn.danger:hover {
+            background: #f43f5e;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(244, 63, 94, 0.6);
+        }
+
+        /* زر يساوي المتوهج */
+        .btn.equal {
+            grid-column: span 2;
+            background: linear-gradient(135deg, #06b6d4, #7c3aed);
+            color: #fff;
+            font-size: 22px;
+            border: none;
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
+        }
+        .btn.equal:hover {
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.8);
+            filter: brightness(1.1);
+        }
+
+        /* لوحة السجل الجانبية */
+        .history-panel {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 28px;
+            padding: 20px;
+            width: 240px;
+            color: #e2e8f0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 12px;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .clear-hist {
+            background: none;
+            border: none;
+            color: #f43f5e;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        #history-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            direction: ltr;
+        }
+
+        .history-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid transparent;
+        }
+        .history-item:hover {
+            border-color: #22d3ee;
+            background: rgba(6, 182, 212, 0.1);
+        }
+        .hist-exp {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        .hist-res {
+            font-size: 16px;
+            color: #22d3ee;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        @media (max-width: 720px) {
+            .container { flex-direction: column; align-items: center; }
+            .history-panel { width: 420px; max-height: 180px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<div class="container">
+    <!-- جسم الآلة الحاسبة -->
+    <div class="calculator">
+        <div class="header">
+            <span>SCIENTIFIC PRO</span>
+            <button class="mode-toggle" id="angleMode" onclick="toggleAngleMode()">DEG</button>
+        </div>
+
+        <div class="screen">
+            <div id="expression"></div>
+            <input type="text" id="display" value="0" readonly>
+        </div>
+
+        <div class="buttons">
+            <!-- الصف الأول: دوال مثلثية ولوغاريتمات -->
+            <button class="btn sci" onclick="insertFunc('sin(')">sin</button>
+            <button class="btn sci" onclick="insertFunc('cos(')">cos</button>
+            <button class="btn sci" onclick="insertFunc('tan(')">tan</button>
+            <button class="btn sci" onclick="insertFunc('log(')">log</button>
+            <button class="btn sci" onclick="insertFunc('ln(')">ln</button>
+
+            <!-- الصف الثاني: أسس وجذور وأقواس -->
+            <button class="btn sci" onclick="insertFunc('sqrt(')">√</button>
+            <button class="btn sci" onclick="insertVal('^')">xʸ</button>
+            <button class="btn sci" onclick="insertVal('!')">n!</button>
+            <button class="btn sci" onclick="insertVal('(')">(</button>
+            <button class="btn sci" onclick="insertVal(')')">)</button>
+
+            <!-- الصف الثالث: ثوابت وأرقام 7-9 ومسح -->
+            <button class="btn sci" onclick="insertVal('π')">π</button>
+            <button class="btn" onclick="insertVal('7')">7</button>
+            <button class="btn" onclick="insertVal('8')">8</button>
+            <button class="btn" onclick="insertVal('9')">9</button>
+            <button class="btn danger" onclick="deleteLast()">⌫</button>
+
+            <!-- الصف الرابع: e وأرقام 4-6 ومسح الكل -->
+            <button class="btn sci" onclick="insertVal('e')">e</button>
+            <button class="btn" onclick="insertVal('4')">4</button>
+            <button class="btn" onclick="insertVal('5')">5</button>
+            <button class="btn" onclick="insertVal('6')">6</button>
+            <button class="btn danger" onclick="clearAll()">AC</button>
+
+            <!-- الصف الخامس: نسبة مئوية وأرقام 1-3 وضرب وقسمة -->
+            <button class="btn sci" onclick="insertVal('%')">%</button>
+            <button class="btn" onclick="insertVal('1')">1</button>
+            <button class="btn" onclick="insertVal('2')">2</button>
+            <button class="btn" onclick="insertVal('3')">3</button>
+            <button class="btn op" onclick="insertVal('×')">×</button>
+
+            <!-- الصف السادس: صفر ونقطة وجمع وطرح ويساوي -->
+            <button class="btn" onclick="insertVal('0')">0</button>
+            <button class="btn" onclick="insertVal('.')">.</button>
+            <button class="btn op" onclick="insertVal('+')">+</button>
+            <button class="btn op" onclick="insertVal('-')">-</button>
+            <button class="btn op" onclick="insertVal('÷')">÷</button>
+
+            <!-- صف إضافي لزر يساوي العريض + الإجابة السابقة -->
+            <button class="btn sci" style="grid-column: span 3;" onclick="insertAns()">ANS (آخر نتيجة)</button>
+            <button class="btn equal" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <!-- لوحة السجل (History) -->
+    <div class="history-panel">
+        <div class="history-header">
+            <span>سجل العمليات</span>
+            <button class="clear-hist" onclick="clearHistory()">مسح السجل</button>
+        </div>
+        <div id="history-list">
+            <div style="color: #64748b; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد عمليات بعد</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const display = document.getElementById('display');
+    const expressionEl = document.getElementById('expression');
+    const historyList = document.getElementById('history-list');
+    const angleBtn = document.getElementById('angleMode');
+
+    let isDegree = true;
+    let lastAnswer = 0;
+    let currentInput = '';
+
+    function toggleAngleMode() {
+        isDegree = !isDegree;
+        angleBtn.textContent = isDegree ? 'DEG' : 'RAD';
+    }
+
+    function updateScreen() {
+        display.value = currentInput || '0';
+    }
+
+    function insertVal(val) {
+        if (currentInput === 'خطأ رياضي') currentInput = '';
+        currentInput += val;
+        updateScreen();
+    }
+
+    function insertFunc(func) {
+        if (currentInput === 'خطأ رياضي') currentInput = '';
+        currentInput += func;
+        updateScreen();
+    }
+
+    function insertAns() {
+        insertVal(lastAnswer.toString());
+    }
+
+    function clearAll() {
+        currentInput = '';
+        expressionEl.textContent = '';
+        updateScreen();
+    }
+
+    function deleteLast() {
+        if (currentInput === 'خطأ رياضي') {
+            clearAll();
+            return;
+        }
+        currentInput = currentInput.slice(0, -1);
+        updateScreen();
+    }
+
+    // دالة المضروب (Factorial)
+    function factorial(n) {
+        if (n < 0) return NaN;
+        if (n === 0 || n === 1) return 1;
+        let res = 1;
+        for (let i = 2; i <= n; i++) res *= i;
+        return res;
+    }
+
+    // دوال مثلثية تراعي DEG و RAD
+    function sinCalc(x) { return isDegree ? Math.sin(x * Math.PI / 180) : Math.sin(x); }
+    function cosCalc(x) { return isDegree ? Math.cos(x * Math.PI / 180) : Math.cos(x); }
+    function tanCalc(x) {
+        if (isDegree && Math.abs(x % 180) === 90) throw new Error('Undefined');
+        return isDegree ? Math.tan(x * Math.PI / 180) : Math.tan(x);
+    }
+
+    function calculate() {
+        if (!currentInput) return;
+        let rawExp = currentInput;
+
+        try {
+            // تحويل الرموز لصيغة يفهمها JavaScript
+            let parsed = rawExp
+                .replace(/×/g, '*')
+                .replace(/÷/g, '/')
+                .replace(/π/g, 'Math.PI')
+                .replace(/\be\b/g, 'Math.E')
+                .replace(/\^/g, '**')
+                .replace(/sqrt\(/g, 'Math.sqrt(')
+                .replace(/log\(/g, 'Math.log10(')
+                .replace(/ln\(/g, 'Math.log(')
+                .replace(/sin\(/g, 'sinCalc(')
+                .replace(/cos\(/g, 'cosCalc(')
+                .replace(/tan\(/g, 'tanCalc(')
+                .replace(/(\d+)!/g, 'factorial($1)')
+                .replace(/%/g, '/100');
+
+            // إغلاق الأقواس المفتوحة تلقائياً لو المستخدم نسي يقفلها
+            let openParens = (parsed.match(/\(/g) || []).length;
+            let closeParens = (parsed.match(/\)/g) || []).length;
+            while (openParens > closeParens) {
+                parsed += ')';
+                closeParens++;
+            }
+
+            let result = eval(parsed);
+
+            if (isNaN(result) || !isFinite(result)) {
+                throw new Error('Math Error');
+            }
+
+            // تقريب الأرقام العشرية الطويلة جداً (مثل sin(30))
+            result = Math.round(result * 1e10) / 1e10;
+
+            expressionEl.textContent = rawExp + ' =';
+            lastAnswer = result;
+            currentInput = result.toString();
+            updateScreen();
+            addToHistory(rawExp, result);
+
+        } catch (err) {
+            expressionEl.textContent = rawExp;
+            currentInput = 'خطأ رياضي';
+            updateScreen();
+        }
+    }
+
+    function addToHistory(exp, res) {
+        if (historyList.children[0]?.textContent.includes('لا توجد')) {
+            historyList.innerHTML = '';
+        }
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        item.innerHTML = `<div class="hist-exp">${exp}</div><div class="hist-res">= ${res}</div>`;
+        item.onclick = () => {
+            currentInput = res.toString();
+            updateScreen();
+        };
+        historyList.prepend(item);
+    }
+
+    function clearHistory() {
+        historyList.innerHTML = '<div style="color: #64748b; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد عمليات بعد</div>';
+    }
+
+    // دعم الكتابة من الكيبورد مباشرة
+    document.addEventListener('keydown', (e) => {
+        if ((e.key >= '0' && e.key <= '9') || e.key === '.' || e.key === '(' || e.key === ')') {
+            insertVal(e.key);
+        } else if (e.key === '+') insertVal('+');
+        else if (e.key === '-') insertVal('-');
+        else if (e.key === '*') insertVal('×');
+        else if (e.key === '/') { e.preventDefault(); insertVal('÷'); }
+        else if (e.key === '^') insertVal('^');
+        else if (e.key === 'Enter') { e.preventDefault(); calculate(); }
+        else if (e.key === 'Backspace') deleteLast();
+        else if (e.key === 'Escape') clearAll();
+    });
+</script>
+
+</body>
+</html>
